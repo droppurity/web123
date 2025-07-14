@@ -48,6 +48,7 @@ export async function addInteraction(
     revalidatePath('/dashboard');
     revalidatePath('/subscriptions');
     revalidatePath('/free-trials');
+    revalidatePath(`/leads/${leadType.replace(' ', '-')}-${leadId}`);
     return { message: 'Interaction added successfully.' };
   } catch (e) {
     console.error(e);
@@ -84,6 +85,7 @@ export async function updateLeadStatus(
     revalidatePath('/dashboard');
     revalidatePath('/subscriptions');
     revalidatePath('/free-trials');
+    revalidatePath(`/leads/${leadType.replace(' ', '-')}-${leadId}`);
     return { message: 'Status updated successfully.' };
   } catch (e) {
     console.error(e);

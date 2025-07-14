@@ -46,7 +46,7 @@ export function LeadHistoryDialog({
     if (addInteractionState.message) {
       toast({ title: 'Interaction', description: addInteractionState.message });
       if (addInteractionState.message.includes('success')) {
-        setOpen(false);
+        // We don't close the dialog anymore, just clear the form if needed
       }
     }
   }, [addInteractionState, toast]);
@@ -57,10 +57,103 @@ export function LeadHistoryDialog({
       if (updateStatusState.message.includes('success')) {
         const newStatus = (document.getElementById(`status-select-${lead._id}`) as HTMLInputElement)?.value as LeadStatus;
         if (newStatus) setCurrentStatus(newStatus);
-        setOpen(false);
+        // We don't close the dialog anymore
       }
     }
   }, [updateStatusState, toast, lead._id]);
+
+  // If used on the lead detail page, render the forms directly.
+  // Otherwise, use a dialog.
+  const isOnLeadPage =
+    typeof window !== 'undefined' &&
+    window.location.pathname.includes('/leads/');
+  
+  const content = (
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div>
+        <h4 className="font-semibold mb-2">Add New Interaction</h4>
+         <form action={addInteractionAction} className="space-y-4">
+            <input type="hidden" name="leadId" value={lead._id} />
+            <input type="hidden" name="leadType" value={lead.leadType} />
+            <div>
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea id="notes" name="notes" required placeholder="Add conversation details..."/>
+            </div>
+             <div>
+                <Label htmlFor="interactionType">Interaction Type</Label>
+                <Select name="interactionType" defaultValue="Note">
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Note">Note</SelectItem>
+                        <SelectItem value="Call">Call</SelectItem>
+                        <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <Button type="submit">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Interaction
+            </Button>
+        </form>
+        
+        <hr className="my-6" />
+
+        <h4 className="font-semibold mb-2">Update Status</h4>
+         <form action={updateStatusAction} className="space-y-4">
+            <input type="hidden" name="leadId" value={lead._id} />
+            <input type="hidden" name="leadType" value={lead.leadType} />
+             <div>
+                <Label htmlFor={`status-select-${lead._id}`}>Status</Label>
+                <Select name="status" defaultValue={currentStatus}>
+                    <SelectTrigger id={`status-select-${lead._id}`}>
+                        <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="New">New</SelectItem>
+                        <SelectItem value="Contacted">Contacted</SelectItem>
+                        <SelectItem value="Converted">Converted</SelectItem>
+                        <SelectItem value="Closed">Closed</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+             <div>
+                <Label htmlFor="reason">Reason (if Closed)</Label>
+                <Textarea id="reason" name="reason" placeholder="Reason for closing the lead..."/>
+            </div>
+            <Button type="submit">Update Status</Button>
+        </form>
+      </div>
+      <div>
+        <h4 className="font-semibold mb-2">Past Interactions</h4>
+        <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+            {lead.interactions && lead.interactions.length > 0 ? (
+                lead.interactions.slice().reverse().map((interaction: Interaction) => (
+                    <div key={interaction._id} className="p-3 bg-muted rounded-lg">
+                        <div className="flex justify-between items-center mb-1">
+                            <div className="font-semibold flex items-center gap-2">
+                                {interaction.type === 'Call' && <Phone className="h-4 w-4" />}
+                                {interaction.type === 'WhatsApp' && <MessageSquare className="h-4 w-4" />}
+                                {interaction.type}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                                {new Date(interaction.createdAt).toLocaleString()}
+                            </div>
+                        </div>
+                        <p className="text-sm">{interaction.notes}</p>
+                    </div>
+                ))
+            ) : (
+                <p className="text-sm text-muted-foreground">No interactions yet.</p>
+            )}
+        </div>
+      </div>
+    </div>
+  );
+
+  if (isOnLeadPage) {
+    return content;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -76,87 +169,7 @@ export function LeadHistoryDialog({
             Track interactions and update status for this lead.
           </DialogDescription>
         </DialogHeader>
-
-        <div className="grid grid-cols-2 gap-8">
-            <div>
-                <h4 className="font-semibold mb-2">Add New Interaction</h4>
-                 <form action={addInteractionAction} className="space-y-4">
-                    <input type="hidden" name="leadId" value={lead._id} />
-                    <input type="hidden" name="leadType" value={lead.leadType} />
-                    <div>
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea id="notes" name="notes" required placeholder="Add conversation details..."/>
-                    </div>
-                     <div>
-                        <Label htmlFor="interactionType">Interaction Type</Label>
-                        <Select name="interactionType" defaultValue="Note">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Note">Note</SelectItem>
-                                <SelectItem value="Call">Call</SelectItem>
-                                <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <Button type="submit">
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Interaction
-                    </Button>
-                </form>
-                
-                <hr className="my-6" />
-
-                <h4 className="font-semibold mb-2">Update Status</h4>
-                 <form action={updateStatusAction} className="space-y-4">
-                    <input type="hidden" name="leadId" value={lead._id} />
-                    <input type="hidden" name="leadType" value={lead.leadType} />
-                     <div>
-                        <Label htmlFor={`status-select-${lead._id}`}>Status</Label>
-                        <Select name="status" defaultValue={currentStatus}>
-                            <SelectTrigger id={`status-select-${lead._id}`}>
-                                <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="New">New</SelectItem>
-                                <SelectItem value="Contacted">Contacted</SelectItem>
-                                <SelectItem value="Converted">Converted</SelectItem>
-                                <SelectItem value="Closed">Closed</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                     <div>
-                        <Label htmlFor="reason">Reason (if Closed)</Label>
-                        <Textarea id="reason" name="reason" placeholder="Reason for closing the lead..."/>
-                    </div>
-                    <Button type="submit">Update Status</Button>
-                </form>
-            </div>
-            <div>
-                <h4 className="font-semibold mb-2">Past Interactions</h4>
-                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {lead.interactions && lead.interactions.length > 0 ? (
-                        lead.interactions.slice().reverse().map((interaction: Interaction) => (
-                            <div key={interaction._id} className="p-3 bg-muted rounded-lg">
-                                <div className="flex justify-between items-center mb-1">
-                                    <div className="font-semibold flex items-center gap-2">
-                                        {interaction.type === 'Call' && <Phone className="h-4 w-4" />}
-                                        {interaction.type === 'WhatsApp' && <MessageSquare className="h-4 w-4" />}
-                                        {interaction.type}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        {new Date(interaction.createdAt).toLocaleString()}
-                                    </div>
-                                </div>
-                                <p className="text-sm">{interaction.notes}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-sm text-muted-foreground">No interactions yet.</p>
-                    )}
-                </div>
-            </div>
-        </div>
+        {content}
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="secondary">

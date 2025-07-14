@@ -27,6 +27,14 @@ const navItems = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // A function to determine if a nav item is active, including dynamic routes
+  const isActive = (itemHref: string) => {
+    if (itemHref === '/dashboard') {
+      return pathname === itemHref || pathname.startsWith('/leads/');
+    }
+    return pathname.startsWith(itemHref);
+  }
+
   return (
     <SidebarProvider>
       <Sidebar className="border-r">
@@ -46,7 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname.startsWith(item.href)}
+                  isActive={isActive(item.href)}
                   className="w-full"
                   tooltip={{ children: item.label, side: 'right' }}
                 >

@@ -1,8 +1,8 @@
 import {
-  getContacts,
   getFreeTrials,
   getReferrals,
   getSubscriptions,
+  getContacts,
 } from '@/lib/data';
 import {
   Card,
@@ -21,10 +21,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Clock3, Share2, CreditCard, ArrowRight } from 'lucide-react';
+import { Users, Clock3, Share2, CreditCard, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Subscription, FreeTrial, Lead } from '@/types';
 import Link from 'next/link';
-import { LeadHistoryDialog } from '../subscriptions/lead-history-dialog';
 
 function getStatusVariant(status: Subscription['status']) {
   switch (status) {
@@ -143,7 +142,6 @@ export default async function DashboardPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Contact</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
@@ -155,10 +153,6 @@ export default async function DashboardPage() {
                 activeLeads.map((lead: Lead) => (
                   <TableRow key={lead._id}>
                     <TableCell className="font-medium">{lead.name}</TableCell>
-                    <TableCell>
-                      <div>{lead.email}</div>
-                      <div>{lead.phone}</div>
-                    </TableCell>
                     <TableCell>
                       <Badge variant={lead.leadType === 'Subscription' ? 'default' : 'secondary'}>
                         {lead.leadType}
@@ -175,14 +169,18 @@ export default async function DashboardPage() {
                         : 'N/A'}
                     </TableCell>
                     <TableCell>
-                      <LeadHistoryDialog lead={lead} />
+                       <Button asChild variant="outline" size="sm">
+                        <Link href={`/leads/${lead.leadType.replace(' ', '-')}-${lead._id}`}>
+                          Manage Lead <ArrowUpRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={5}
                     className="text-center text-muted-foreground"
                   >
                     No active leads right now.
