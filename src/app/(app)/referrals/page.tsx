@@ -1,0 +1,76 @@
+import { getReferrals } from '@/lib/data';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Referral } from '@/types';
+
+function getStatusVariant(status: Referral['status']) {
+  switch (status) {
+    case 'Completed':
+      return 'default';
+    case 'Pending':
+      return 'secondary';
+    case 'Expired':
+      return 'destructive';
+    default:
+      return 'outline';
+  }
+}
+
+export default async function ReferralsPage() {
+  const referrals = await getReferrals();
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Referrals</CardTitle>
+        <CardDescription>
+          User referrals and their current status.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Referrer Email</TableHead>
+              <TableHead>Referred Email</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {referrals.map((referral: Referral) => (
+              <TableRow key={referral._id}>
+                <TableCell className="font-medium">
+                  {referral.referrerEmail}
+                </TableCell>
+                <TableCell>{referral.referredEmail}</TableCell>
+                <TableCell>
+                  <Badge variant={getStatusVariant(referral.status)}>
+                    {referral.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  {referral.createdAt.toLocaleDateString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
