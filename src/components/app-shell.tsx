@@ -12,11 +12,12 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Droplet, Users, Clock3, Share2, CreditCard } from 'lucide-react';
+import { Droplet, Users, Clock3, Share2, CreditCard, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
 const navItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/contacts', label: 'Contacts', icon: Users },
   { href: '/free-trials', label: 'Free Trials', icon: Clock3 },
   { href: '/referrals', label: 'Referrals', icon: Share2 },
