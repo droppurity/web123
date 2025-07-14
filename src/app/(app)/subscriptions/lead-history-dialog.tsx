@@ -159,7 +159,10 @@ export function LeadHistoryDialog({
   const [isOnLeadPage, setIsOnLeadPage] = useState(false);
   
   useEffect(() => {
-    setIsOnLeadPage(window.location.pathname.includes('/leads/'));
+    // This effect will only run on the client side
+    if (typeof window !== 'undefined') {
+        setIsOnLeadPage(window.location.pathname.includes('/leads/'));
+    }
   }, []);
 
   if (isOnLeadPage) {
