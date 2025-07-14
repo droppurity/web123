@@ -82,26 +82,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       {desktopSidebar}
       <SidebarInset>
-        <Sheet>
-          <div className="p-4 md:hidden border-b sticky top-0 bg-background z-10 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
-                <Droplet className="h-5 w-5" />
-              </div>
-              <h1 className="text-lg font-semibold">DropPurity</h1>
-            </Link>
+        <div className="p-4 md:hidden border-b sticky top-0 bg-background z-10 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
+              <Droplet className="h-5 w-5" />
+            </div>
+            <h1 className="text-lg font-semibold">DropPurity</h1>
+          </Link>
+          <Sheet>
             <SidebarSheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <PanelLeft />
               </Button>
             </SidebarSheetTrigger>
-          </div>
-          <SheetContent side="left" className="p-0 w-64">
-            {/* We are re-rendering the same sidebar for mobile, but inside the SheetContent */}
-            {desktopSidebar}
-          </SheetContent>
-          <div className="p-4 lg:p-6">{children}</div>
-        </Sheet>
+            <SheetContent side="left" className="p-0 w-64">
+              {/* We are re-rendering the same sidebar for mobile, but inside the SheetContent */}
+              {desktopSidebar}
+            </SheetContent>
+          </Sheet>
+        </div>
+        <div className="p-4 lg:p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
