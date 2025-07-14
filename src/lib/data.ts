@@ -63,7 +63,7 @@ export async function getLeadById(paramId: string): Promise<Lead | null> {
     id = parts[1];
   } else if (paramId.startsWith('Free-Trial-')) {
     leadType = 'Free Trial';
-    id = parts[2];
+    id = parts.slice(2).join('-');
   }
 
   if (!leadType || !id || !ObjectId.isValid(id)) {
