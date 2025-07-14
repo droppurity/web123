@@ -11,12 +11,12 @@ export interface FreeTrial {
   _id: string;
   email: string;
   plan: 'Basic' | 'Pro' | 'Enterprise';
-  startDate: Date;
-  endDate: Date;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface Referral {
-  _id: string;
+  _id:string;
   referrerEmail: string;
   referredEmail: string;
   status: 'Pending' | 'Completed' | 'Expired';
