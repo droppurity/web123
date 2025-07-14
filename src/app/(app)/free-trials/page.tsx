@@ -45,9 +45,15 @@ export default async function FreeTrialsPage() {
                 <TableCell>
                   <Badge variant="secondary">{trial.plan}</Badge>
                 </TableCell>
-                <TableCell>{trial.startDate.toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {trial.startDate
+                    ? new Date(trial.startDate).toLocaleDateString()
+                    : 'N/A'}
+                </TableCell>
                 <TableCell className="text-right">
-                  {trial.endDate.toLocaleDateString()}
+                  {trial.endDate
+                    ? new Date(trial.endDate).toLocaleDateString()
+                    : 'N/A'}
                 </TableCell>
               </TableRow>
             ))}
