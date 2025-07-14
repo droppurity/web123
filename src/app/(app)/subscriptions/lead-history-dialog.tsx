@@ -1,0 +1,165 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Subscription, LeadStatus, Interaction } from '@/types';
+import { History, Phone, MessageSquare, PlusCircle } from 'lucide-react';
+import { addInteraction, updateSubscriptionStatus } from '@/lib/actions';
+import { useFormState } from 'react-dom';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
+
+const initialState = {
+  message: '',
+};
+
+export function LeadHistoryDialog({
+  subscription,
+}: {
+  subscription: Subscription;
+}) {
+  const [open, setOpen] = useState(false);
+  const [addInteractionState, addInteractionAction] = useFormState(addInteraction, initialState);
+  const [updateStatusState, updateStatusAction] = useFormState(updateSubscriptionStatus, initialState);
+  const { toast } = useToast();
+   const [currentStatus, setCurrentStatus] = useState<LeadStatus>(subscription.status || 'New');
+
+  useEffect(() => {
+    if (addInteractionState.message) {
+      toast({ title: 'Interaction', description: addInteractionState.message });
+      setOpen(false);
+    }
+  }, [addInteractionState, toast]);
+
+  useEffect(() => {
+    if (updateStatusState.message) {
+      toast({ title: 'Status Update', description: updateStatusState.message });
+      const newStatus = (document.getElementById(`status-select-${subscription._id}`) as HTMLInputElement)?.value as LeadStatus;
+      if (newStatus) setCurrentStatus(newStatus);
+      setOpen(false);
+    }
+  }, [updateStatusState, toast, subscription._id]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <History className="mr-2 h-4 w-4" /> History
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>Lead History: {subscription.name}</DialogTitle>
+          <DialogDescription>
+            Track interactions and update status for this lead.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-8">
+            <div>
+                <h4 className="font-semibold mb-2">Add New Interaction</h4>
+                 <form action={addInteractionAction} className="space-y-4">
+                    <input type="hidden" name="subscriptionId" value={subscription._id} />
+                    <div>
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea id="notes" name="notes" required placeholder="Add conversation details..."/>
+                    </div>
+                     <div>
+                        <Label htmlFor="interactionType">Interaction Type</Label>
+                        <Select name="interactionType" defaultValue="Note">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Note">Note</SelectItem>
+                                <SelectItem value="Call">Call</SelectItem>
+                                <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Button type="submit">
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Interaction
+                    </Button>
+                </form>
+                
+                <hr className="my-6" />
+
+                <h4 className="font-semibold mb-2">Update Status</h4>
+                 <form action={updateStatusAction} className="space-y-4">
+                    <input type="hidden" name="subscriptionId" value={subscription._id} />
+                     <div>
+                        <Label htmlFor={`status-select-${subscription._id}`}>Status</Label>
+                        <Select name="status" defaultValue={currentStatus}>
+                            <SelectTrigger id={`status-select-${subscription._id}`}>
+                                <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="New">New</SelectItem>
+                                <SelectItem value="Contacted">Contacted</SelectItem>
+                                <SelectItem value="Converted">Converted</SelectItem>
+                                <SelectItem value="Closed">Closed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div>
+                        <Label htmlFor="reason">Reason (if Closed)</Label>
+                        <Textarea id="reason" name="reason" placeholder="Reason for closing the lead..."/>
+                    </div>
+                    <Button type="submit">Update Status</Button>
+                </form>
+            </div>
+            <div>
+                <h4 className="font-semibold mb-2">Past Interactions</h4>
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    {subscription.interactions && subscription.interactions.length > 0 ? (
+                        subscription.interactions.slice().reverse().map((interaction: Interaction) => (
+                            <div key={interaction._id} className="p-3 bg-muted rounded-lg">
+                                <div className="flex justify-between items-center mb-1">
+                                    <div className="font-semibold flex items-center gap-2">
+                                        {interaction.type === 'Call' && <Phone className="h-4 w-4" />}
+                                        {interaction.type === 'WhatsApp' && <MessageSquare className="h-4 w-4" />}
+                                        {interaction.type}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                        {new Date(interaction.createdAt).toLocaleString()}
+                                    </div>
+                                </div>
+                                <p className="text-sm">{interaction.notes}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No interactions yet.</p>
+                    )}
+                </div>
+            </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

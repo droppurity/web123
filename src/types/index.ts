@@ -29,6 +29,15 @@ export interface Referral {
   createdAt: Date;
 }
 
+export type LeadStatus = 'New' | 'Contacted' | 'Converted' | 'Closed';
+
+export interface Interaction {
+  _id: string;
+  type: 'Call' | 'WhatsApp' | 'Note';
+  notes: string;
+  createdAt: Date;
+}
+
 export interface Subscription {
   _id: string;
   name: string;
@@ -40,4 +49,6 @@ export interface Subscription {
   planName: string;
   tenure: string;
   createdAt: Date;
+  status: LeadStatus;
+  interactions: Interaction[];
 }
