@@ -53,16 +53,16 @@ function LeadDetail({
   if (!value) return null;
   const Icon = icon;
   const content = href ? (
-    <a href={href} className="font-semibold text-primary hover:underline">
+    <a href={href} className="font-semibold text-primary hover:underline break-all">
       {value}
     </a>
   ) : (
-    <p className="text-base font-semibold">{value}</p>
+    <p className="text-base font-semibold break-all">{value}</p>
   );
 
   return (
     <div className="flex items-start gap-3">
-      <Icon className="h-5 w-5 text-muted-foreground mt-1" />
+      <Icon className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
       <div>
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
         {content}
@@ -86,10 +86,10 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="lg:col-span-2">
         <Card>
-          <CardHeader className="flex-row items-start justify-between">
+          <CardHeader className="flex-col md:flex-row items-start justify-between gap-4">
             <div>
               <CardTitle className="text-2xl">{lead.name}</CardTitle>
-              <CardDescription>
+              <CardDescription className='mt-2'>
                 <Badge
                   variant={
                     isSubscription
@@ -105,13 +105,13 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
                 </Badge>
               </CardDescription>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" asChild>
+            <div className="flex gap-2 w-full md:w-auto">
+              <Button variant="outline" size="sm" asChild className='flex-1 md:flex-none'>
                 <a href={`tel:${lead.phone}`}>
                   <Phone className="mr-2 h-4 w-4" /> Call
                 </a>
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className='flex-1 md:flex-none'>
                 <a href={`https://wa.me/${lead.phone}`} target="_blank">
                   <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
                 </a>
@@ -169,7 +169,7 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="lg:col-span-1">
-        <Card className="sticky top-4">
+        <Card className="lg:sticky top-4">
           <CardHeader>
             <CardTitle>Manage Lead</CardTitle>
             <CardDescription>

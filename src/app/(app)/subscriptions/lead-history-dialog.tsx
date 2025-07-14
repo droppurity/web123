@@ -30,23 +30,22 @@ const initialState = {
   message: '',
 };
 
-export function LeadHistoryDialog({
+function LeadManagementForms({
   lead,
+  currentStatus,
+  setCurrentStatus,
 }: {
   lead: Lead;
+  currentStatus: LeadStatus;
+  setCurrentStatus: (status: LeadStatus) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [addInteractionState, addInteractionAction] = useActionState(addInteraction, initialState);
   const [updateStatusState, updateStatusAction] = useActionState(updateLeadStatus, initialState);
   const { toast } = useToast();
-   const [currentStatus, setCurrentStatus] = useState<LeadStatus>(lead.status || 'New');
 
   useEffect(() => {
     if (addInteractionState.message) {
       toast({ title: 'Interaction', description: addInteractionState.message });
-      if (addInteractionState.message.includes('success')) {
-        // We don't close the dialog anymore, just clear the form if needed
-      }
     }
   }, [addInteractionState, toast]);
 
@@ -56,18 +55,11 @@ export function LeadHistoryDialog({
       if (updateStatusState.message.includes('success')) {
         const newStatus = (document.getElementById(`status-select-${lead._id}`) as HTMLInputElement)?.value as LeadStatus;
         if (newStatus) setCurrentStatus(newStatus);
-        // We don't close the dialog anymore
       }
     }
-  }, [updateStatusState, toast, lead._id]);
+  }, [updateStatusState, toast, lead._id, setCurrentStatus]);
 
-  // If used on the lead detail page, render the forms directly.
-  // Otherwise, use a dialog.
-  const isOnLeadPage =
-    typeof window !== 'undefined' &&
-    window.location.pathname.includes('/leads/');
-  
-  const content = (
+  return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
       <div>
         <h4 className="font-semibold mb-2">Add New Interaction</h4>
@@ -149,9 +141,29 @@ export function LeadHistoryDialog({
       </div>
     </div>
   );
+}
 
+export function LeadHistoryDialog({
+  lead,
+}: {
+  lead: Lead;
+}) {
+  const [open, setOpen] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<LeadStatus>(lead.status || 'New');
+  
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
+  
+  const isOnLeadPage = window.location.pathname.includes('/leads/');
+  
   if (isOnLeadPage) {
-    return content;
+    return <LeadManagementForms lead={lead} currentStatus={currentStatus} setCurrentStatus={setCurrentStatus} />;
   }
 
   return (
@@ -168,7 +180,7 @@ export function LeadHistoryDialog({
             Track interactions and update status for this lead.
           </DialogDescription>
         </DialogHeader>
-        {content}
+        <LeadManagementForms lead={lead} currentStatus={currentStatus} setCurrentStatus={setCurrentStatus} />
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="secondary">

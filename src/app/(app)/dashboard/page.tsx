@@ -21,11 +21,18 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Clock3, Share2, CreditCard, ArrowRight, ArrowUpRight } from 'lucide-react';
-import { Subscription, FreeTrial, Lead } from '@/types';
+import {
+  Users,
+  Clock3,
+  Share2,
+  CreditCard,
+  ArrowRight,
+  ArrowUpRight,
+} from 'lucide-react';
+import { Subscription, FreeTrial, Lead, LeadStatus } from '@/types';
 import Link from 'next/link';
 
-function getStatusVariant(status: Subscription['status']) {
+function getStatusVariant(status: LeadStatus) {
   switch (status) {
     case 'Converted':
       return 'default';
@@ -39,6 +46,37 @@ function getStatusVariant(status: Subscription['status']) {
       return 'outline';
   }
 }
+
+function LeadCard({ lead }: { lead: Lead }) {
+  return (
+    <Card>
+      <CardContent className="p-4 space-y-3">
+        <div className="flex justify-between items-start">
+            <div>
+                 <p className="font-semibold">{lead.name}</p>
+                 <div className="flex items-center gap-2 mt-1">
+                     <Badge variant={lead.leadType === 'Subscription' ? 'default' : 'secondary'}>
+                        {lead.leadType}
+                      </Badge>
+                      <Badge variant={getStatusVariant(lead.status || 'New')}>
+                        {lead.status || 'New'}
+                      </Badge>
+                 </div>
+            </div>
+            <Button asChild variant="outline" size="sm">
+                <Link href={`/leads/${lead.leadType.replace(' ', '-')}-${lead._id}`}>
+                  Manage <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Date: {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : 'N/A'}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default async function DashboardPage() {
   const [contacts, freeTrials, referrals, subscriptions] = await Promise.all([
@@ -54,13 +92,18 @@ export default async function DashboardPage() {
   const totalSubscriptions = subscriptions.length;
 
   const activeSubscriptionLeads = subscriptions
-    .filter((sub) => (sub.status || 'New') === 'New' || sub.status === 'Contacted')
-    .map(sub => ({ ...sub, leadType: 'Subscription' as const }));
+    .filter(
+      (sub) => (sub.status || 'New') === 'New' || sub.status === 'Contacted'
+    )
+    .map((sub) => ({ ...sub, leadType: 'Subscription' as const }));
 
   const activeFreeTrialLeads = freeTrials
-    .filter((trial) => (trial.status || 'New') === 'New' || trial.status === 'Contacted')
-    .map(trial => ({ ...trial, leadType: 'Free Trial' as const }));
-  
+    .filter(
+      (trial) =>
+        (trial.status || 'New') === 'New' || trial.status === 'Contacted'
+    )
+    .map((trial) => ({ ...trial, leadType: 'Free Trial' as const }));
+
   const activeLeads: Lead[] = [...activeSubscriptionLeads, ...activeFreeTrialLeads]
     .sort(
       (a, b) =>
@@ -116,14 +159,14 @@ export default async function DashboardPage() {
       </div>
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
               <CardTitle>Active Leads</CardTitle>
               <CardDescription>
                 Recent subscription and free trial leads that need attention.
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link href="/subscriptions">
                   View All Subscriptions <ArrowRight className="ml-2 h-4 w-4" />
@@ -138,57 +181,76 @@ export default async function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {activeLeads.length > 0 ? (
-                activeLeads.map((lead: Lead) => (
-                  <TableRow key={lead._id}>
-                    <TableCell className="font-medium">{lead.name}</TableCell>
-                    <TableCell>
-                      <Badge variant={lead.leadType === 'Subscription' ? 'default' : 'secondary'}>
-                        {lead.leadType}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(lead.status || 'New')}>
-                        {lead.status || 'New'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {lead.createdAt
-                        ? new Date(lead.createdAt).toLocaleDateString()
-                        : 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                       <Button asChild variant="outline" size="sm">
-                        <Link href={`/leads/${lead.leadType.replace(' ', '-')}-${lead._id}`}>
-                          Manage Lead <ArrowUpRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {activeLeads.length > 0 ? (
+                  activeLeads.map((lead: Lead) => (
+                    <TableRow key={lead._id}>
+                      <TableCell className="font-medium">{lead.name}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            lead.leadType === 'Subscription'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {lead.leadType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(lead.status || 'New')}>
+                          {lead.status || 'New'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {lead.createdAt
+                          ? new Date(lead.createdAt).toLocaleDateString()
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <Button asChild variant="outline" size="sm">
+                          <Link
+                            href={`/leads/${lead.leadType.replace(' ', '-')}-${lead._id}`}
+                          >
+                            Manage Lead <ArrowUpRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center text-muted-foreground"
+                    >
+                      No active leads right now.
                     </TableCell>
                   </TableRow>
-                ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="md:hidden space-y-4">
+             {activeLeads.length > 0 ? (
+                activeLeads.map((lead) => <LeadCard key={lead._id} lead={lead} />)
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-muted-foreground"
-                  >
-                    No active leads right now.
-                  </TableCell>
-                </TableRow>
+                <p className="text-center text-muted-foreground py-8">
+                  No active leads right now.
+                </p>
               )}
-            </TableBody>
-          </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

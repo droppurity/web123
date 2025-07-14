@@ -9,12 +9,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SidebarTrigger,
+  SidebarSheetTrigger,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Droplet, Users, Clock3, Share2, CreditCard, LayoutDashboard } from 'lucide-react';
+import { Droplet, Users, Clock3, Share2, CreditCard, LayoutDashboard, PanelLeft } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import { Button } from './ui/button';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -69,8 +70,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <div className="p-4 md:hidden border-b sticky top-0 bg-background z-10">
-          <SidebarTrigger />
+         <div className="p-4 md:hidden border-b sticky top-0 bg-background z-10 flex items-center justify-between">
+           <Link href="/" className="flex items-center gap-2">
+            <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
+              <Droplet className="h-5 w-5" />
+            </div>
+            <h1 className="text-lg font-semibold">
+              DropPurity
+            </h1>
+          </Link>
+          <SidebarSheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+                <PanelLeft />
+            </Button>
+          </SidebarSheetTrigger>
         </div>
         <div className="p-4 lg:p-6">{children}</div>
       </SidebarInset>

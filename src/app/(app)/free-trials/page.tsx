@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { FreeTrial, LeadStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MapPin, Phone, MessageSquare } from 'lucide-react';
+import { Mail, MapPin, Phone, MessageSquare } from 'lucide-react';
 import { LeadHistoryDialog } from '../subscriptions/lead-history-dialog';
 
 function getStatusVariant(status: LeadStatus) {
@@ -36,6 +36,75 @@ function getStatusVariant(status: LeadStatus) {
   }
 }
 
+function FreeTrialCard({ trial }: { trial: FreeTrial }) {
+  return (
+    <Card>
+       <CardContent className="p-4 space-y-4">
+        <div className="flex justify-between items-start">
+            <div>
+                 <p className="font-semibold">{trial.name}</p>
+                 <Badge variant={getStatusVariant(trial.status || 'New')}>
+                    {trial.status || 'New'}
+                  </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {trial.createdAt ? new Date(trial.createdAt).toLocaleDateString() : 'N/A'}
+            </p>
+        </div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <p className="font-medium">Purifier</p>
+                <p className="text-muted-foreground">{trial.purifierName}</p>
+            </div>
+             <div>
+                <p className="font-medium">Plan</p>
+                <p className="text-muted-foreground">{trial.planName}</p>
+            </div>
+             <div>
+                <p className="font-medium">Tenure</p>
+                <p className="text-muted-foreground">{trial.tenure}</p>
+            </div>
+        </div>
+        <div>
+            <p className="text-sm font-medium">Address</p>
+            <p className="text-sm text-muted-foreground">{trial.address}</p>
+        </div>
+        <div>
+            <p className="text-sm font-medium">Contact</p>
+            <div className="flex items-center gap-2 mt-1">
+                 <a href={`mailto:${trial.email}`} className="text-primary hover:underline text-sm flex items-center gap-1">
+                    <Mail className="h-3 w-3" /> {trial.email}
+                </a>
+                 <a href={`tel:${trial.phone}`} className="text-primary hover:underline text-sm flex items-center gap-1">
+                    <Phone className="h-3 w-3" /> {trial.phone}
+                </a>
+            </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" size="sm" asChild>
+                <a href={`tel:${trial.phone}`}>
+                <Phone className="mr-2 h-4 w-4" /> Call
+                </a>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+                <a href={`https://wa.me/${trial.phone}`} target="_blank">
+                <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
+                </a>
+            </Button>
+            {trial.location && (
+                <Button variant="outline" size="sm" asChild>
+                    <Link href={trial.location} target="_blank">
+                    <MapPin className="mr-2 h-4 w-4" /> Map
+                    </Link>
+                </Button>
+            )}
+            <LeadHistoryDialog lead={{...trial, leadType: 'Free Trial'}} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default async function FreeTrialsPage() {
   const freeTrials = await getFreeTrials();
 
@@ -48,82 +117,89 @@ export default async function FreeTrialsPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Purifier</TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead>Tenure</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {freeTrials.map((trial: FreeTrial) => (
-              <TableRow key={trial._id}>
-                <TableCell className="font-medium">{trial.name}</TableCell>
-                <TableCell>
-                  <div>
-                    <a
-                      href={`mailto:${trial.email}`}
-                      className="text-primary hover:underline"
-                    >
-                      {trial.email}
-                    </a>
-                  </div>
-                  <div>
-                    <a
-                      href={`tel:${trial.phone}`}
-                      className="text-primary hover:underline"
-                    >
-                      {trial.phone}
-                    </a>
-                  </div>
-                </TableCell>
-                <TableCell>{trial.address}</TableCell>
-                <TableCell>{trial.purifierName}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{trial.planName}</Badge>
-                </TableCell>
-                <TableCell>{trial.tenure}</TableCell>
-                 <TableCell>
-                   <Badge variant={getStatusVariant(trial.status || 'New')}>
-                    {trial.status || 'New'}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  {trial.createdAt
-                    ? new Date(trial.createdAt).toLocaleDateString()
-                    : 'N/A'}
-                </TableCell>
-                <TableCell className="space-x-2 flex items-center">
-                   <Button variant="outline" size="sm" asChild>
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Purifier</TableHead>
+                <TableHead>Plan</TableHead>
+                <TableHead>Tenure</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {freeTrials.map((trial: FreeTrial) => (
+                <TableRow key={trial._id}>
+                  <TableCell className="font-medium">{trial.name}</TableCell>
+                  <TableCell>
+                    <div>
+                      <a
+                        href={`mailto:${trial.email}`}
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                       <Mail className="h-3 w-3" /> {trial.email}
+                      </a>
+                    </div>
+                    <div>
+                      <a
+                        href={`tel:${trial.phone}`}
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        <Phone className="h-3 w-3" /> {trial.phone}
+                      </a>
+                    </div>
+                  </TableCell>
+                  <TableCell>{trial.address}</TableCell>
+                  <TableCell>{trial.purifierName}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{trial.planName}</Badge>
+                  </TableCell>
+                  <TableCell>{trial.tenure}</TableCell>
+                  <TableCell>
+                    <Badge variant={getStatusVariant(trial.status || 'New')}>
+                      {trial.status || 'New'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {trial.createdAt
+                      ? new Date(trial.createdAt).toLocaleDateString()
+                      : 'N/A'}
+                  </TableCell>
+                  <TableCell className="space-x-2 flex items-center">
+                    <Button variant="outline" size="sm" asChild>
                       <a href={`tel:${trial.phone}`}>
                         <Phone className="mr-2 h-4 w-4" /> Call
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                       <a href={`https://wa.me/${trial.phone}`} target="_blank">
+                      <a href={`https://wa.me/${trial.phone}`} target="_blank">
                         <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
                       </a>
                     </Button>
-                  {trial.location && (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={trial.location} target="_blank">
-                        <MapPin className="mr-2 h-4 w-4" /> Map
-                      </Link>
-                    </Button>
-                  )}
-                  <LeadHistoryDialog lead={{...trial, leadType: 'Free Trial'}} />
-                </TableCell>
-              </TableRow>
+                    {trial.location && (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={trial.location} target="_blank">
+                          <MapPin className="mr-2 h-4 w-4" /> Map
+                        </Link>
+                      </Button>
+                    )}
+                    <LeadHistoryDialog lead={{ ...trial, leadType: 'Free Trial' }} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="md:hidden space-y-4">
+            {freeTrials.map((trial) => (
+                <FreeTrialCard key={trial._id} trial={trial} />
             ))}
-          </TableBody>
-        </Table>
+        </div>
       </CardContent>
     </Card>
   );
