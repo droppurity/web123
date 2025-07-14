@@ -23,7 +23,7 @@ export interface FreeTrial {
 }
 
 export interface Referral {
-  _id:string;
+  _id: string;
   referrerEmail: string;
   referredEmail: string;
   status: 'Pending' | 'Completed' | 'Expired';
@@ -39,6 +39,7 @@ export interface Interaction {
   type: 'Call' | 'WhatsApp' | 'Note';
   notes: string;
   createdAt: Date;
+  leadName?: string;
 }
 
 export interface Subscription {
@@ -55,9 +56,9 @@ export interface Subscription {
   status: LeadStatus;
 }
 
-export type Lead = (Subscription | FreeTrial) & { 
-  leadType: 'Subscription' | 'Free Trial',
-  interactions: Interaction[],
-  callCount?: number,
-  whatsAppCount?: number
+export type Lead = (Subscription | FreeTrial) & {
+  leadType: 'Subscription' | 'Free Trial';
+  interactions: Interaction[];
+  callCount?: number;
+  whatsAppCount?: number;
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useActionState } from 'react';
+import { useState, useEffect, useActionState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -42,10 +42,15 @@ function LeadManagementForms({
   const [addInteractionState, addInteractionAction] = useActionState(addInteraction, initialState);
   const [updateStatusState, updateStatusAction] = useActionState(updateLeadStatus, initialState);
   const { toast } = useToast();
+  const addFormRef = useRef<HTMLFormElement>(null);
+  const updateFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (addInteractionState.message) {
       toast({ title: 'Interaction', description: addInteractionState.message });
+      if (addInteractionState.message.includes('success')) {
+        addFormRef.current?.reset();
+      }
     }
   }, [addInteractionState, toast]);
 
@@ -55,6 +60,7 @@ function LeadManagementForms({
       if (updateStatusState.message.includes('success')) {
         const newStatus = (document.getElementById(`status-select-${lead._id}`) as HTMLInputElement)?.value as LeadStatus;
         if (newStatus) setCurrentStatus(newStatus);
+        updateFormRef.current?.reset();
       }
     }
   }, [updateStatusState, toast, lead._id, setCurrentStatus]);
@@ -63,7 +69,7 @@ function LeadManagementForms({
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
       <div>
         <h4 className="font-semibold mb-2">Add New Interaction</h4>
-         <form action={addInteractionAction} className="space-y-4">
+         <form ref={addFormRef} action={addInteractionAction} className="space-y-4">
             <input type="hidden" name="leadId" value={lead._id} />
             <input type="hidden" name="leadType" value={lead.leadType} />
             <div>
@@ -91,7 +97,7 @@ function LeadManagementForms({
         <hr className="my-6" />
 
         <h4 className="font-semibold mb-2">Update Status</h4>
-         <form action={updateStatusAction} className="space-y-4">
+         <form ref={updateFormRef} action={updateStatusAction} className="space-y-4">
             <input type="hidden" name="leadId" value={lead._id} />
             <input type="hidden" name="leadType" value={lead.leadType} />
              <div>
@@ -153,7 +159,6 @@ export function LeadHistoryDialog({
   const [isOnLeadPage, setIsOnLeadPage] = useState(false);
   
   useEffect(() => {
-    // This effect runs only on the client, so window is safe to access.
     setIsOnLeadPage(window.location.pathname.includes('/leads/'));
   }, []);
 

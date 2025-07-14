@@ -18,7 +18,6 @@ import {
   Clock,
   User,
   Tag,
-  Hash,
   Box,
 } from 'lucide-react';
 import { LeadHistoryDialog } from '../../subscriptions/lead-history-dialog';
@@ -90,14 +89,13 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
           <CardHeader className="flex-col md:flex-row items-start justify-between gap-4">
             <div>
               <CardTitle className="text-2xl">{lead.name}</CardTitle>
-              <CardDescription className='mt-2'>
+              <CardDescription className="mt-2 flex items-center gap-2">
                 <Badge
                   variant={
                     isSubscription
                       ? 'default'
                       : 'secondary'
                   }
-                  className="mr-2"
                 >
                   {lead.leadType}
                 </Badge>
