@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Referral } from '@/types';
+import { BackButton } from '@/components/back-button';
 
 function getStatusVariant(status: Referral['status']) {
   switch (status) {
@@ -57,7 +58,10 @@ export default async function ReferralsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Referrals</CardTitle>
+        <div className="flex justify-between items-center">
+            <CardTitle>Referrals</CardTitle>
+            <BackButton />
+        </div>
         <CardDescription>
           User referrals and their current status.
         </CardDescription>

@@ -23,6 +23,7 @@ import {
 import { LeadHistoryDialog } from '../../subscriptions/lead-history-dialog';
 import type { Subscription, FreeTrial, LeadStatus } from '@/types';
 import { ContactButton } from './contact-button';
+import { BackButton } from '@/components/back-button';
 
 function getStatusVariant(status: LeadStatus) {
   switch (status) {
@@ -84,7 +85,10 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2 space-y-4">
+        <div className="flex justify-start">
+            <BackButton />
+        </div>
         <Card>
           <CardHeader className="flex-col md:flex-row items-start justify-between gap-4">
             <div>

@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Interaction } from '@/types';
 import { Phone, MessageSquare, StickyNote } from 'lucide-react';
 import Link from 'next/link';
+import { BackButton } from '@/components/back-button';
 
 function InteractionIcon({ type }: { type: Interaction['type'] }) {
   switch (type) {
@@ -68,7 +69,10 @@ export default async function InteractionsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>All Interactions</CardTitle>
+        <div className="flex justify-between items-center">
+            <CardTitle>All Interactions</CardTitle>
+            <BackButton />
+        </div>
         <CardDescription>
           A chronological log of all lead interactions.
         </CardDescription>

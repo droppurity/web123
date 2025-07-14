@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { Mail, MapPin, Phone, MessageSquare, History } from 'lucide-react';
 import { LeadHistoryDialog } from './lead-history-dialog';
 import { ContactButton } from '../leads/[id]/contact-button';
+import { BackButton } from '@/components/back-button';
 
 
 function getStatusVariant(status: LeadStatus) {
@@ -97,7 +98,10 @@ export default async function SubscriptionsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Subscriptions</CardTitle>
+        <div className="flex justify-between items-center">
+            <CardTitle>Subscriptions</CardTitle>
+            <BackButton />
+        </div>
         <CardDescription>
           All user subscriptions and their status.
         </CardDescription>

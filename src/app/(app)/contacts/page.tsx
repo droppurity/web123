@@ -18,6 +18,7 @@ import { Contact } from '@/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Mail, MapPin } from 'lucide-react';
+import { BackButton } from '@/components/back-button';
 
 function ContactCard({ contact }: { contact: Contact }) {
   return (
@@ -58,7 +59,10 @@ export default async function ContactsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Contacts</CardTitle>
+        <div className="flex justify-between items-center">
+            <CardTitle>Contacts</CardTitle>
+            <BackButton />
+        </div>
         <CardDescription>
           All contact form submissions from users.
         </CardDescription>

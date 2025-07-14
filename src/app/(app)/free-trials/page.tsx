@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { Mail, MapPin, Phone, MessageSquare } from 'lucide-react';
 import { LeadHistoryDialog } from '../subscriptions/lead-history-dialog';
 import { ContactButton } from '../leads/[id]/contact-button';
+import { BackButton } from '@/components/back-button';
 
 
 function getStatusVariant(status: LeadStatus) {
@@ -109,7 +110,10 @@ export default async function FreeTrialsPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Free Trials</CardTitle>
+        <div className="flex justify-between items-center">
+            <CardTitle>Free Trials</CardTitle>
+            <BackButton />
+        </div>
         <CardDescription>
           Users who have signed up for a free trial.
         </CardDescription>
