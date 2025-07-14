@@ -150,18 +150,13 @@ export function LeadHistoryDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<LeadStatus>(lead.status || 'New');
+  const [isOnLeadPage, setIsOnLeadPage] = useState(false);
   
-  const [isClient, setIsClient] = useState(false);
   useEffect(() => {
-    setIsClient(true);
+    // This effect runs only on the client, so window is safe to access.
+    setIsOnLeadPage(window.location.pathname.includes('/leads/'));
   }, []);
 
-  if (!isClient) {
-    return null;
-  }
-  
-  const isOnLeadPage = window.location.pathname.includes('/leads/');
-  
   if (isOnLeadPage) {
     return <LeadManagementForms lead={lead} currentStatus={currentStatus} setCurrentStatus={setCurrentStatus} />;
   }
