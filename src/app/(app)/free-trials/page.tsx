@@ -16,6 +16,9 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { FreeTrial } from '@/types';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 
 export default async function FreeTrialsPage() {
   const freeTrials = await getFreeTrials();
@@ -32,27 +35,43 @@ export default async function FreeTrialsPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Purifier</TableHead>
               <TableHead>Plan</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead className="text-right">End Date</TableHead>
+              <TableHead>Tenure</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead className="text-right">Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {freeTrials.map((trial: FreeTrial) => (
               <TableRow key={trial._id}>
-                <TableCell className="font-medium">{trial.email}</TableCell>
+                <TableCell className="font-medium">{trial.name}</TableCell>
+                <TableCell>{trial.email}</TableCell>
+                <TableCell>{trial.phone}</TableCell>
+                <TableCell>{trial.address}</TableCell>
+                <TableCell>{trial.purifierName}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{trial.plan}</Badge>
+                  <Badge variant="secondary">{trial.planName}</Badge>
                 </TableCell>
+                <TableCell>{trial.tenure}</TableCell>
                 <TableCell>
-                  {trial.startDate
-                    ? new Date(trial.startDate).toLocaleDateString()
-                    : 'N/A'}
+                  {trial.location ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={trial.location} target="_blank">
+                        <MapPin className="mr-2 h-4 w-4" /> View Map
+                      </Link>
+                    </Button>
+                  ) : (
+                    'N/A'
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
-                  {trial.endDate
-                    ? new Date(trial.endDate).toLocaleDateString()
+                  {trial.createdAt
+                    ? new Date(trial.createdAt).toLocaleDateString()
                     : 'N/A'}
                 </TableCell>
               </TableRow>

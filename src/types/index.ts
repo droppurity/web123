@@ -10,10 +10,15 @@ export interface Contact {
 
 export interface FreeTrial {
   _id: string;
+  name: string;
   email: string;
-  plan: 'Basic' | 'Pro' | 'Enterprise';
-  startDate?: Date;
-  endDate?: Date;
+  phone: string;
+  location: string;
+  address: string;
+  purifierName: string;
+  planName: string;
+  tenure: string;
+  createdAt: Date;
 }
 
 export interface Referral {
