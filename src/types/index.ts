@@ -20,9 +20,6 @@ export interface FreeTrial {
   tenure: string;
   createdAt: Date;
   status: LeadStatus;
-  interactions: Interaction[];
-  callCount?: number;
-  whatsAppCount?: number;
 }
 
 export interface Referral {
@@ -37,6 +34,8 @@ export type LeadStatus = 'New' | 'Contacted' | 'Converted' | 'Closed';
 
 export interface Interaction {
   _id: string;
+  leadId: string;
+  leadType: 'Subscription' | 'Free Trial';
   type: 'Call' | 'WhatsApp' | 'Note';
   notes: string;
   createdAt: Date;
@@ -54,9 +53,11 @@ export interface Subscription {
   tenure: string;
   createdAt: Date;
   status: LeadStatus;
-  interactions: Interaction[];
-  callCount?: number;
-  whatsAppCount?: number;
 }
 
-export type Lead = (Subscription | FreeTrial) & { leadType: 'Subscription' | 'Free Trial' };
+export type Lead = (Subscription | FreeTrial) & { 
+  leadType: 'Subscription' | 'Free Trial',
+  interactions: Interaction[],
+  callCount?: number,
+  whatsAppCount?: number
+};

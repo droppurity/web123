@@ -20,7 +20,7 @@ export async function addInteraction(
 ) {
   const db = await getDb();
   const leadId = formData.get('leadId') as string;
-  const leadType = formData.get('leadType') as string;
+  const leadType = formData.get('leadType') as 'Subscription' | 'Free Trial';
   const notes = formData.get('notes') as string;
   const interactionType = formData.get('interactionType') as 'Call' | 'WhatsApp' | 'Note';
 
@@ -29,20 +29,19 @@ export async function addInteraction(
   }
 
   try {
-    const collectionName = await getCollectionName(leadType);
-    const newInteraction = {
-      _id: new ObjectId(),
+    const interactionsCollection = db.collection('interactions');
+    await interactionsCollection.insertOne({
+      leadId: new ObjectId(leadId),
+      leadType,
       type: interactionType,
       notes,
       createdAt: new Date(),
-    };
+    });
 
-    await db.collection(collectionName).updateOne(
+    const leadCollectionName = await getCollectionName(leadType);
+    await db.collection(leadCollectionName).updateOne(
       { _id: new ObjectId(leadId) },
-      { 
-        $push: { interactions: newInteraction },
-        $set: { status: 'Contacted' as LeadStatus }
-      }
+      { $set: { status: 'Contacted' as LeadStatus } }
     );
 
     revalidatePath('/dashboard');
@@ -94,7 +93,7 @@ export async function updateLeadStatus(
 }
 
 
-export async function logContactAttempt(leadId: string, leadType: string, contactMethod: 'Call' | 'WhatsApp') {
+export async function logContactAttempt(leadId: string, leadType: 'Subscription' | 'Free Trial', contactMethod: 'Call' | 'WhatsApp') {
   const db = await getDb();
   
   if (!leadId || !leadType || !contactMethod) {
@@ -102,12 +101,19 @@ export async function logContactAttempt(leadId: string, leadType: string, contac
   }
 
   try {
-    const collectionName = await getCollectionName(leadType);
-    const fieldToIncrement = contactMethod === 'Call' ? 'callCount' : 'whatsAppCount';
+    const interactionsCollection = db.collection('interactions');
+    await interactionsCollection.insertOne({
+      leadId: new ObjectId(leadId),
+      leadType,
+      type: contactMethod,
+      notes: `${contactMethod} attempt.`,
+      createdAt: new Date(),
+    });
 
-    await db.collection(collectionName).updateOne(
+    const leadCollectionName = await getCollectionName(leadType);
+     await db.collection(leadCollectionName).updateOne(
       { _id: new ObjectId(leadId) },
-      { $inc: { [fieldToIncrement]: 1 } }
+      { $set: { status: 'Contacted' as LeadStatus } }
     );
     
     revalidatePath('/dashboard');
