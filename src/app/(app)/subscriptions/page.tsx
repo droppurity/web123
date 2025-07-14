@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Mail, MapPin, Phone, MessageSquare, History } from 'lucide-react';
 import { LeadHistoryDialog } from './lead-history-dialog';
+import { ContactButton } from '../leads/[id]/contact-button';
+
 
 function getStatusVariant(status: LeadStatus) {
   switch (status) {
@@ -69,16 +71,12 @@ function SubscriptionCard({ sub }: { sub: Subscription }) {
             </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-            <Button variant="outline" size="sm" asChild>
-                <a href={`tel:${sub.phone}`}>
-                <Phone className="mr-2 h-4 w-4" /> Call
-                </a>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-                <a href={`https://wa.me/${sub.phone}`} target="_blank">
-                <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                </a>
-            </Button>
+            <ContactButton leadId={sub._id} leadType="Subscription" contactMethod="Call" phone={sub.phone}>
+              <Phone className="mr-2 h-4 w-4" /> Call ({sub.callCount || 0})
+            </ContactButton>
+            <ContactButton leadId={sub._id} leadType="Subscription" contactMethod="WhatsApp" phone={sub.phone}>
+              <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp ({sub.whatsAppCount || 0})
+            </ContactButton>
             {sub.location && (
                 <Button variant="outline" size="sm" asChild>
                     <Link href={sub.location} target="_blank">
@@ -155,16 +153,12 @@ export default async function SubscriptionsPage() {
                       : 'N/A'}
                   </TableCell>
                   <TableCell className="space-x-2 flex items-center">
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={`tel:${sub.phone}`}>
-                        <Phone className="mr-2 h-4 w-4" /> Call
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={`https://wa.me/${sub.phone}`} target="_blank">
-                        <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                      </a>
-                    </Button>
+                    <ContactButton leadId={sub._id} leadType="Subscription" contactMethod="Call" phone={sub.phone}>
+                      <Phone className="mr-2 h-4 w-4" /> Call ({sub.callCount || 0})
+                    </ContactButton>
+                    <ContactButton leadId={sub._id} leadType="Subscription" contactMethod="WhatsApp" phone={sub.phone}>
+                      <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp ({sub.whatsAppCount || 0})
+                    </ContactButton>
                     {sub.location && (
                       <Button variant="outline" size="sm" asChild>
                         <Link href={sub.location} target="_blank">

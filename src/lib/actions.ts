@@ -92,3 +92,32 @@ export async function updateLeadStatus(
     return { message: 'Failed to update status.' };
   }
 }
+
+
+export async function logContactAttempt(leadId: string, leadType: string, contactMethod: 'Call' | 'WhatsApp') {
+  const db = await getDb();
+  
+  if (!leadId || !leadType || !contactMethod) {
+    return { success: false, message: 'Missing required fields.' };
+  }
+
+  try {
+    const collectionName = await getCollectionName(leadType);
+    const fieldToIncrement = contactMethod === 'Call' ? 'callCount' : 'whatsAppCount';
+
+    await db.collection(collectionName).updateOne(
+      { _id: new ObjectId(leadId) },
+      { $inc: { [fieldToIncrement]: 1 } }
+    );
+    
+    revalidatePath('/dashboard');
+    revalidatePath('/subscriptions');
+    revalidatePath('/free-trials');
+    revalidatePath(`/leads/${leadType.replace(' ', '-')}-${leadId}`);
+
+    return { success: true, message: `${contactMethod} attempt logged successfully.` };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: `Failed to log ${contactMethod} attempt.` };
+  }
+}

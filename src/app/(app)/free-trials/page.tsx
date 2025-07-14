@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Mail, MapPin, Phone, MessageSquare } from 'lucide-react';
 import { LeadHistoryDialog } from '../subscriptions/lead-history-dialog';
+import { ContactButton } from '../leads/[id]/contact-button';
+
 
 function getStatusVariant(status: LeadStatus) {
   switch (status) {
@@ -81,16 +83,12 @@ function FreeTrialCard({ trial }: { trial: FreeTrial }) {
             </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-            <Button variant="outline" size="sm" asChild>
-                <a href={`tel:${trial.phone}`}>
-                <Phone className="mr-2 h-4 w-4" /> Call
-                </a>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-                <a href={`https://wa.me/${trial.phone}`} target="_blank">
-                <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                </a>
-            </Button>
+            <ContactButton leadId={trial._id} leadType="Free Trial" contactMethod="Call" phone={trial.phone}>
+              <Phone className="mr-2 h-4 w-4" /> Call ({trial.callCount || 0})
+            </ContactButton>
+            <ContactButton leadId={trial._id} leadType="Free Trial" contactMethod="WhatsApp" phone={trial.phone}>
+              <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp ({trial.whatsAppCount || 0})
+            </ContactButton>
             {trial.location && (
                 <Button variant="outline" size="sm" asChild>
                     <Link href={trial.location} target="_blank">
@@ -171,16 +169,12 @@ export default async function FreeTrialsPage() {
                       : 'N/A'}
                   </TableCell>
                   <TableCell className="space-x-2 flex items-center">
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={`tel:${trial.phone}`}>
-                        <Phone className="mr-2 h-4 w-4" /> Call
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={`https://wa.me/${trial.phone}`} target="_blank">
-                        <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                      </a>
-                    </Button>
+                    <ContactButton leadId={trial._id} leadType="Free Trial" contactMethod="Call" phone={trial.phone}>
+                      <Phone className="mr-2 h-4 w-4" /> Call ({trial.callCount || 0})
+                    </ContactButton>
+                    <ContactButton leadId={trial._id} leadType="Free Trial" contactMethod="WhatsApp" phone={trial.phone}>
+                      <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp ({trial.whatsAppCount || 0})
+                    </ContactButton>
                     {trial.location && (
                       <Button variant="outline" size="sm" asChild>
                         <Link href={trial.location} target="_blank">

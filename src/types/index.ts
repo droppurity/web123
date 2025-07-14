@@ -21,6 +21,8 @@ export interface FreeTrial {
   createdAt: Date;
   status: LeadStatus;
   interactions: Interaction[];
+  callCount?: number;
+  whatsAppCount?: number;
 }
 
 export interface Referral {
@@ -53,6 +55,8 @@ export interface Subscription {
   createdAt: Date;
   status: LeadStatus;
   interactions: Interaction[];
+  callCount?: number;
+  whatsAppCount?: number;
 }
 
 export type Lead = (Subscription | FreeTrial) & { leadType: 'Subscription' | 'Free Trial' };

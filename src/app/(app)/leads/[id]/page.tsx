@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { LeadHistoryDialog } from '../../subscriptions/lead-history-dialog';
 import type { Subscription, FreeTrial, LeadStatus } from '@/types';
+import { ContactButton } from './contact-button';
 
 function getStatusVariant(status: LeadStatus) {
   switch (status) {
@@ -106,16 +107,12 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
               </CardDescription>
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-              <Button variant="outline" size="sm" asChild className='flex-1 md:flex-none'>
-                <a href={`tel:${lead.phone}`}>
-                  <Phone className="mr-2 h-4 w-4" /> Call
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" asChild className='flex-1 md:flex-none'>
-                <a href={`https://wa.me/${lead.phone}`} target="_blank">
-                  <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                </a>
-              </Button>
+               <ContactButton leadId={lead._id} leadType={lead.leadType} contactMethod="Call" phone={lead.phone}>
+                <Phone className="mr-2 h-4 w-4" /> Call ({lead.callCount || 0})
+              </ContactButton>
+              <ContactButton leadId={lead._id} leadType={lead.leadType} contactMethod="WhatsApp" phone={lead.phone}>
+                <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp ({lead.whatsAppCount || 0})
+              </ContactButton>
             </div>
           </CardHeader>
           <CardContent className="grid gap-6 md:grid-cols-2">
