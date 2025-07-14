@@ -5,6 +5,7 @@ export interface Contact {
   subject: string;
   message: string;
   createdAt: Date;
+  mapLink?: string;
 }
 
 export interface FreeTrial {
