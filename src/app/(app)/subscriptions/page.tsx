@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Subscription } from '@/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { MapPin, Phone, MessageSquare, History } from 'lucide-react';
+import { MapPin, Phone, MessageSquare } from 'lucide-react';
 import { LeadHistoryDialog } from './lead-history-dialog';
 
 function getStatusVariant(status: Subscription['status']) {
@@ -100,7 +100,7 @@ export default async function SubscriptionsPage() {
                       </Link>
                     </Button>
                   )}
-                  <LeadHistoryDialog subscription={sub} />
+                  <LeadHistoryDialog lead={{...sub, leadType: 'Subscription'}} />
                 </TableCell>
               </TableRow>
             ))}

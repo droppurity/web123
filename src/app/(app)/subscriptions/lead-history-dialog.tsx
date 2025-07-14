@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,43 +21,46 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Subscription, LeadStatus, Interaction } from '@/types';
+import { Lead, LeadStatus, Interaction } from '@/types';
 import { History, Phone, MessageSquare, PlusCircle } from 'lucide-react';
-import { addInteraction, updateSubscriptionStatus } from '@/lib/actions';
+import { addInteraction, updateLeadStatus } from '@/lib/actions';
 import { useFormState } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect } from 'react';
 
 const initialState = {
   message: '',
 };
 
 export function LeadHistoryDialog({
-  subscription,
+  lead,
 }: {
-  subscription: Subscription;
+  lead: Lead;
 }) {
   const [open, setOpen] = useState(false);
   const [addInteractionState, addInteractionAction] = useFormState(addInteraction, initialState);
-  const [updateStatusState, updateStatusAction] = useFormState(updateSubscriptionStatus, initialState);
+  const [updateStatusState, updateStatusAction] = useFormState(updateLeadStatus, initialState);
   const { toast } = useToast();
-   const [currentStatus, setCurrentStatus] = useState<LeadStatus>(subscription.status || 'New');
+   const [currentStatus, setCurrentStatus] = useState<LeadStatus>(lead.status || 'New');
 
   useEffect(() => {
     if (addInteractionState.message) {
       toast({ title: 'Interaction', description: addInteractionState.message });
-      setOpen(false);
+      if (addInteractionState.message.includes('success')) {
+        setOpen(false);
+      }
     }
   }, [addInteractionState, toast]);
 
   useEffect(() => {
     if (updateStatusState.message) {
       toast({ title: 'Status Update', description: updateStatusState.message });
-      const newStatus = (document.getElementById(`status-select-${subscription._id}`) as HTMLInputElement)?.value as LeadStatus;
-      if (newStatus) setCurrentStatus(newStatus);
-      setOpen(false);
+      if (updateStatusState.message.includes('success')) {
+        const newStatus = (document.getElementById(`status-select-${lead._id}`) as HTMLInputElement)?.value as LeadStatus;
+        if (newStatus) setCurrentStatus(newStatus);
+        setOpen(false);
+      }
     }
-  }, [updateStatusState, toast, subscription._id]);
+  }, [updateStatusState, toast, lead._id]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -68,7 +71,7 @@ export function LeadHistoryDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>Lead History: {subscription.name}</DialogTitle>
+          <DialogTitle>Lead History: {lead.name}</DialogTitle>
           <DialogDescription>
             Track interactions and update status for this lead.
           </DialogDescription>
@@ -78,7 +81,8 @@ export function LeadHistoryDialog({
             <div>
                 <h4 className="font-semibold mb-2">Add New Interaction</h4>
                  <form action={addInteractionAction} className="space-y-4">
-                    <input type="hidden" name="subscriptionId" value={subscription._id} />
+                    <input type="hidden" name="leadId" value={lead._id} />
+                    <input type="hidden" name="leadType" value={lead.leadType} />
                     <div>
                         <Label htmlFor="notes">Notes</Label>
                         <Textarea id="notes" name="notes" required placeholder="Add conversation details..."/>
@@ -105,11 +109,12 @@ export function LeadHistoryDialog({
 
                 <h4 className="font-semibold mb-2">Update Status</h4>
                  <form action={updateStatusAction} className="space-y-4">
-                    <input type="hidden" name="subscriptionId" value={subscription._id} />
+                    <input type="hidden" name="leadId" value={lead._id} />
+                    <input type="hidden" name="leadType" value={lead.leadType} />
                      <div>
-                        <Label htmlFor={`status-select-${subscription._id}`}>Status</Label>
+                        <Label htmlFor={`status-select-${lead._id}`}>Status</Label>
                         <Select name="status" defaultValue={currentStatus}>
-                            <SelectTrigger id={`status-select-${subscription._id}`}>
+                            <SelectTrigger id={`status-select-${lead._id}`}>
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -130,8 +135,8 @@ export function LeadHistoryDialog({
             <div>
                 <h4 className="font-semibold mb-2">Past Interactions</h4>
                 <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {subscription.interactions && subscription.interactions.length > 0 ? (
-                        subscription.interactions.slice().reverse().map((interaction: Interaction) => (
+                    {lead.interactions && lead.interactions.length > 0 ? (
+                        lead.interactions.slice().reverse().map((interaction: Interaction) => (
                             <div key={interaction._id} className="p-3 bg-muted rounded-lg">
                                 <div className="flex justify-between items-center mb-1">
                                     <div className="font-semibold flex items-center gap-2">

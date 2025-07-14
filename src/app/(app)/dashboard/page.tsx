@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, Clock3, Share2, CreditCard, ArrowRight } from 'lucide-react';
-import { Subscription } from '@/types';
+import { Subscription, FreeTrial, Lead } from '@/types';
 import Link from 'next/link';
 import { LeadHistoryDialog } from '../subscriptions/lead-history-dialog';
 
@@ -54,13 +54,20 @@ export default async function DashboardPage() {
   const totalReferrals = referrals.length;
   const totalSubscriptions = subscriptions.length;
 
-  const activeLeads = subscriptions
-    .filter((sub) => sub.status === 'New' || sub.status === 'Contacted')
+  const activeSubscriptionLeads = subscriptions
+    .filter((sub) => (sub.status || 'New') === 'New' || sub.status === 'Contacted')
+    .map(sub => ({ ...sub, leadType: 'Subscription' as const }));
+
+  const activeFreeTrialLeads = freeTrials
+    .filter((trial) => (trial.status || 'New') === 'New' || trial.status === 'Contacted')
+    .map(trial => ({ ...trial, leadType: 'Free Trial' as const }));
+  
+  const activeLeads: Lead[] = [...activeSubscriptionLeads, ...activeFreeTrialLeads]
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
-    .slice(0, 5);
+    .slice(0, 10);
 
   return (
     <div className="flex flex-col gap-4">
@@ -114,14 +121,21 @@ export default async function DashboardPage() {
             <div>
               <CardTitle>Active Leads</CardTitle>
               <CardDescription>
-                Recent subscription leads that need attention.
+                Recent subscription and free trial leads that need attention.
               </CardDescription>
             </div>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/subscriptions">
-                View All <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/subscriptions">
+                  View All Subscriptions <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/free-trials">
+                  View All Free Trials <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -130,7 +144,7 @@ export default async function DashboardPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Contact</TableHead>
-                <TableHead>Plan</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Actions</TableHead>
@@ -138,26 +152,30 @@ export default async function DashboardPage() {
             </TableHeader>
             <TableBody>
               {activeLeads.length > 0 ? (
-                activeLeads.map((sub: Subscription) => (
-                  <TableRow key={sub._id}>
-                    <TableCell className="font-medium">{sub.name}</TableCell>
+                activeLeads.map((lead: Lead) => (
+                  <TableRow key={lead._id}>
+                    <TableCell className="font-medium">{lead.name}</TableCell>
                     <TableCell>
-                      <div>{sub.email}</div>
-                      <div>{sub.phone}</div>
+                      <div>{lead.email}</div>
+                      <div>{lead.phone}</div>
                     </TableCell>
-                    <TableCell>{sub.planName}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(sub.status || 'New')}>
-                        {sub.status || 'New'}
+                      <Badge variant={lead.leadType === 'Subscription' ? 'default' : 'secondary'}>
+                        {lead.leadType}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {sub.createdAt
-                        ? new Date(sub.createdAt).toLocaleDateString()
+                      <Badge variant={getStatusVariant(lead.status || 'New')}>
+                        {lead.status || 'New'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {lead.createdAt
+                        ? new Date(lead.createdAt).toLocaleDateString()
                         : 'N/A'}
                     </TableCell>
                     <TableCell>
-                      <LeadHistoryDialog subscription={sub} />
+                      <LeadHistoryDialog lead={lead} />
                     </TableCell>
                   </TableRow>
                 ))

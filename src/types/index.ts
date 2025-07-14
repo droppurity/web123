@@ -19,6 +19,8 @@ export interface FreeTrial {
   planName: string;
   tenure: string;
   createdAt: Date;
+  status: LeadStatus;
+  interactions: Interaction[];
 }
 
 export interface Referral {
@@ -52,3 +54,5 @@ export interface Subscription {
   status: LeadStatus;
   interactions: Interaction[];
 }
+
+export type Lead = (Subscription | FreeTrial) & { leadType: 'Subscription' | 'Free Trial' };

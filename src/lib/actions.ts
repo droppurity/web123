@@ -5,20 +5,31 @@ import { getDb } from './mongodb';
 import { LeadStatus } from '@/types';
 import { ObjectId } from 'mongodb';
 
+async function getCollectionName(leadType: string) {
+  if (leadType === 'Subscription') {
+    return 'subscriptions';
+  } else if (leadType === 'Free Trial') {
+    return 'free_trials';
+  }
+  throw new Error('Invalid lead type');
+}
+
 export async function addInteraction(
   prevState: { message: string },
   formData: FormData
 ) {
   const db = await getDb();
-  const subscriptionId = formData.get('subscriptionId') as string;
+  const leadId = formData.get('leadId') as string;
+  const leadType = formData.get('leadType') as string;
   const notes = formData.get('notes') as string;
   const interactionType = formData.get('interactionType') as 'Call' | 'WhatsApp' | 'Note';
 
-  if (!subscriptionId || !notes || !interactionType) {
+  if (!leadId || !leadType || !notes || !interactionType) {
     return { message: 'Missing required fields.' };
   }
 
   try {
+    const collectionName = await getCollectionName(leadType);
     const newInteraction = {
       _id: new ObjectId(),
       type: interactionType,
@@ -26,15 +37,17 @@ export async function addInteraction(
       createdAt: new Date(),
     };
 
-    await db.collection('subscriptions').updateOne(
-      { _id: new ObjectId(subscriptionId) },
+    await db.collection(collectionName).updateOne(
+      { _id: new ObjectId(leadId) },
       { 
         $push: { interactions: newInteraction },
         $set: { status: 'Contacted' as LeadStatus }
       }
     );
 
+    revalidatePath('/dashboard');
     revalidatePath('/subscriptions');
+    revalidatePath('/free-trials');
     return { message: 'Interaction added successfully.' };
   } catch (e) {
     console.error(e);
@@ -42,16 +55,17 @@ export async function addInteraction(
   }
 }
 
-export async function updateSubscriptionStatus(
+export async function updateLeadStatus(
   prevState: { message: string },
   formData: FormData
 ) {
   const db = await getDb();
-  const subscriptionId = formData.get('subscriptionId') as string;
+  const leadId = formData.get('leadId') as string;
+  const leadType = formData.get('leadType') as string;
   const status = formData.get('status') as LeadStatus;
   const reason = formData.get('reason') as string;
 
-  if (!subscriptionId || !status) {
+  if (!leadId || !leadType || !status) {
     return { message: 'Missing required fields.' };
   }
   
@@ -62,11 +76,14 @@ export async function updateSubscriptionStatus(
   }
 
   try {
-    await db.collection('subscriptions').updateOne(
-      { _id: new ObjectId(subscriptionId) },
+    const collectionName = await getCollectionName(leadType);
+    await db.collection(collectionName).updateOne(
+      { _id: new ObjectId(leadId) },
       { $set: updatePayload }
     );
+    revalidatePath('/dashboard');
     revalidatePath('/subscriptions');
+    revalidatePath('/free-trials');
     return { message: 'Status updated successfully.' };
   } catch (e) {
     console.error(e);
