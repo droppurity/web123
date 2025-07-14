@@ -31,6 +31,7 @@ export default async function ContactsPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Subject</TableHead>
               <TableHead>Message</TableHead>
               <TableHead className="text-right">Date</TableHead>
             </TableRow>
@@ -40,6 +41,7 @@ export default async function ContactsPage() {
               <TableRow key={contact._id}>
                 <TableCell className="font-medium">{contact.name}</TableCell>
                 <TableCell>{contact.email}</TableCell>
+                <TableCell>{contact.subject}</TableCell>
                 <TableCell className="max-w-xs truncate" title={contact.message}>
                   {contact.message}
                 </TableCell>
