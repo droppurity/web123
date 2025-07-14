@@ -64,9 +64,9 @@ export default async function SubscriptionsPage() {
                     {sub.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{sub.startDate.toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(sub.startDate).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
-                  {sub.endDate ? sub.endDate.toLocaleDateString() : 'Active'}
+                  {sub.endDate ? new Date(sub.endDate).toLocaleDateString() : 'Active'}
                 </TableCell>
               </TableRow>
             ))}

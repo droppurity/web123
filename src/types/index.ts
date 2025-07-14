@@ -32,7 +32,7 @@ export interface Referral {
 export interface Subscription {
   _id: string;
   userEmail: string;
-  plan: 'Monthly' | 'Yearly';
+  plan: 'Monthly' | 'Yearly' | 'Basic';
   status: 'Active' | 'Canceled' | 'Past Due';
   startDate: Date;
   endDate: Date | null;
