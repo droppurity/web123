@@ -43,19 +43,29 @@ function LeadDetail({
   label,
   value,
   icon,
+  href,
 }: {
   label: string;
   value?: string | null;
   icon: React.ElementType;
+  href?: string;
 }) {
   if (!value) return null;
   const Icon = icon;
+  const content = href ? (
+    <a href={href} className="font-semibold text-primary hover:underline">
+      {value}
+    </a>
+  ) : (
+    <p className="text-base font-semibold">{value}</p>
+  );
+
   return (
     <div className="flex items-start gap-3">
       <Icon className="h-5 w-5 text-muted-foreground mt-1" />
       <div>
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className="text-base font-semibold">{value}</p>
+        {content}
       </div>
     </div>
   );
@@ -112,8 +122,18 @@ export default async function LeadPage({ params }: { params: { id: string } }) {
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Contact Information</h3>
               <LeadDetail label="Name" value={lead.name} icon={User} />
-              <LeadDetail label="Email" value={lead.email} icon={Mail} />
-              <LeadDetail label="Phone" value={lead.phone} icon={Phone} />
+              <LeadDetail
+                label="Email"
+                value={lead.email}
+                icon={Mail}
+                href={`mailto:${lead.email}`}
+              />
+              <LeadDetail
+                label="Phone"
+                value={lead.phone}
+                icon={Phone}
+                href={`tel:${lead.phone}`}
+              />
             </div>
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Lead Details</h3>

@@ -67,8 +67,22 @@ export default async function FreeTrialsPage() {
               <TableRow key={trial._id}>
                 <TableCell className="font-medium">{trial.name}</TableCell>
                 <TableCell>
-                  <div>{trial.email}</div>
-                  <div>{trial.phone}</div>
+                  <div>
+                    <a
+                      href={`mailto:${trial.email}`}
+                      className="text-primary hover:underline"
+                    >
+                      {trial.email}
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href={`tel:${trial.phone}`}
+                      className="text-primary hover:underline"
+                    >
+                      {trial.phone}
+                    </a>
+                  </div>
                 </TableCell>
                 <TableCell>{trial.address}</TableCell>
                 <TableCell>{trial.purifierName}</TableCell>

@@ -44,7 +44,14 @@ export default async function ContactsPage() {
             {contacts.map((contact: Contact) => (
               <TableRow key={contact._id}>
                 <TableCell className="font-medium">{contact.name}</TableCell>
-                <TableCell>{contact.email}</TableCell>
+                <TableCell>
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="text-primary hover:underline"
+                  >
+                    {contact.email}
+                  </a>
+                </TableCell>
                 <TableCell>{contact.subject}</TableCell>
                 <TableCell className="max-w-xs truncate" title={contact.message}>
                   {contact.message}

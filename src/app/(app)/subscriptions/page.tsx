@@ -64,8 +64,22 @@ export default async function SubscriptionsPage() {
               <TableRow key={sub._id}>
                 <TableCell className="font-medium">{sub.name}</TableCell>
                 <TableCell>
-                  <div>{sub.email}</div>
-                  <div>{sub.phone}</div>
+                  <div>
+                    <a
+                      href={`mailto:${sub.email}`}
+                      className="text-primary hover:underline"
+                    >
+                      {sub.email}
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href={`tel:${sub.phone}`}
+                      className="text-primary hover:underline"
+                    >
+                      {sub.phone}
+                    </a>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div>Purifier: {sub.purifierName}</div>
