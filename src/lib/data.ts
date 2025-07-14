@@ -28,20 +28,30 @@ export async function getSubscriptions(): Promise<Subscription[]> {
 
 export async function getLeadById(paramId: string): Promise<Lead | null> {
   const db = await getDb();
-  const [type, ...idParts] = paramId.split('-');
-  const id = idParts.join('-');
 
-  if (!ObjectId.isValid(id)) {
+  let leadType: 'Subscription' | 'Free Trial' | null = null;
+  let id: string | null = null;
+
+  if (paramId.startsWith('Subscription-')) {
+    leadType = 'Subscription';
+    id = paramId.substring('Subscription-'.length);
+  } else if (paramId.startsWith('Free-Trial-')) {
+    leadType = 'Free Trial';
+    id = paramId.substring('Free-Trial-'.length);
+  }
+
+  if (!leadType || !id || !ObjectId.isValid(id)) {
     return null;
   }
+  
   const objectId = new ObjectId(id);
-
-  if (type === 'Subscription') {
+  
+  if (leadType === 'Subscription') {
     const subscription = await db.collection('subscriptions').findOne({ _id: objectId });
     if (subscription) {
       return { ...subscription, _id: subscription._id.toString(), leadType: 'Subscription' } as Lead;
     }
-  } else if (type === 'Free-Trial') {
+  } else if (leadType === 'Free Trial') {
     const freeTrial = await db.collection('free_trials').findOne({ _id: objectId });
     if (freeTrial) {
       return { ...freeTrial, _id: freeTrial._id.toString(), leadType: 'Free Trial' } as Lead;
