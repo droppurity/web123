@@ -28,7 +28,8 @@ export async function getSubscriptions(): Promise<Subscription[]> {
 
 export async function getLeadById(paramId: string): Promise<Lead | null> {
   const db = await getDb();
-  const [type, id] = paramId.split('-');
+  const [type, ...idParts] = paramId.split('-');
+  const id = idParts.join('-');
 
   if (!ObjectId.isValid(id)) {
     return null;
