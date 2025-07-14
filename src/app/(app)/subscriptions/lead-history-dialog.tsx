@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,7 +24,6 @@ import { Label } from '@/components/ui/label';
 import { Lead, LeadStatus, Interaction } from '@/types';
 import { History, Phone, MessageSquare, PlusCircle } from 'lucide-react';
 import { addInteraction, updateLeadStatus } from '@/lib/actions';
-import { useFormState } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
@@ -37,8 +36,8 @@ export function LeadHistoryDialog({
   lead: Lead;
 }) {
   const [open, setOpen] = useState(false);
-  const [addInteractionState, addInteractionAction] = useFormState(addInteraction, initialState);
-  const [updateStatusState, updateStatusAction] = useFormState(updateLeadStatus, initialState);
+  const [addInteractionState, addInteractionAction] = useActionState(addInteraction, initialState);
+  const [updateStatusState, updateStatusAction] = useActionState(updateLeadStatus, initialState);
   const { toast } = useToast();
    const [currentStatus, setCurrentStatus] = useState<LeadStatus>(lead.status || 'New');
 
@@ -162,7 +161,7 @@ export function LeadHistoryDialog({
           <History className="mr-2 h-4 w-4" /> History
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Lead History: {lead.name}</DialogTitle>
           <DialogDescription>
