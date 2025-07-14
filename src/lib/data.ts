@@ -11,14 +11,24 @@ async function getInteractionsForLeads<T extends (Subscription | FreeTrial)>(lea
   const interactions = await db.collection('interactions').find({ leadId: { $in: leadIds } }).sort({ createdAt: -1 }).toArray();
 
   return leads.map(lead => {
-    const leadInteractions = interactions.filter(i => i.leadId.toString() === lead._id.toString()) as Interaction[];
-    const callCount = leadInteractions.filter(i => i.type === 'Call').length;
-    const whatsAppCount = leadInteractions.filter(i => i.type === 'WhatsApp').length;
+    const leadInteractions = interactions.filter(i => i.leadId.toString() === lead._id.toString());
+    
+    const serializedInteractions = leadInteractions.map(i => ({
+      _id: i._id.toString(),
+      leadId: i.leadId.toString(),
+      leadType: i.leadType,
+      type: i.type,
+      notes: i.notes,
+      createdAt: i.createdAt,
+    })) as Interaction[];
+
+    const callCount = serializedInteractions.filter(i => i.type === 'Call').length;
+    const whatsAppCount = serializedInteractions.filter(i => i.type === 'WhatsApp').length;
 
     return {
       ...lead,
       leadType,
-      interactions: leadInteractions.map(i => ({...i, _id: i._id.toString()})),
+      interactions: serializedInteractions,
       callCount,
       whatsAppCount
     };
@@ -54,16 +64,16 @@ export async function getSubscriptions(): Promise<(Subscription & { leadType: 'S
 export async function getLeadById(paramId: string): Promise<Lead | null> {
   const db = await getDb();
 
-  let leadType: 'Subscription' | 'Free Trial' | null = null;
-  let id: string | null = null;
-  
   const parts = paramId.split('-');
-  if (paramId.startsWith('Subscription-')) {
+  const id = parts.pop();
+  const leadTypeStr = parts.join(' ');
+  
+  let leadType: 'Subscription' | 'Free Trial' | null = null;
+
+  if (leadTypeStr === 'Subscription') {
     leadType = 'Subscription';
-    id = parts[1];
-  } else if (paramId.startsWith('Free-Trial-')) {
+  } else if (leadTypeStr === 'Free Trial') {
     leadType = 'Free Trial';
-    id = parts.slice(2).join('-');
   }
 
   if (!leadType || !id || !ObjectId.isValid(id)) {
