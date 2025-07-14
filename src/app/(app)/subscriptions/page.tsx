@@ -16,19 +16,9 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Subscription } from '@/types';
-
-function getStatusVariant(status: Subscription['status']) {
-  switch (status) {
-    case 'Active':
-      return 'default';
-    case 'Canceled':
-      return 'secondary';
-    case 'Past Due':
-      return 'destructive';
-    default:
-      return 'outline';
-  }
-}
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 
 export default async function SubscriptionsPage() {
   const subscriptions = await getSubscriptions();
@@ -45,28 +35,44 @@ export default async function SubscriptionsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User Email</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Purifier</TableHead>
               <TableHead>Plan</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead className="text-right">End Date</TableHead>
+              <TableHead>Tenure</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead className="text-right">Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {subscriptions.map((sub: Subscription) => (
               <TableRow key={sub._id}>
-                <TableCell className="font-medium">{sub.userEmail}</TableCell>
+                <TableCell className="font-medium">{sub.name}</TableCell>
+                <TableCell>{sub.email}</TableCell>
+                <TableCell>{sub.phone}</TableCell>
+                <TableCell>{sub.address}</TableCell>
+                <TableCell>{sub.purifierName}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{sub.plan}</Badge>
+                  <Badge variant="outline">{sub.planName}</Badge>
                 </TableCell>
+                <TableCell>{sub.tenure}</TableCell>
                 <TableCell>
-                  <Badge variant={getStatusVariant(sub.status)}>
-                    {sub.status}
-                  </Badge>
+                  {sub.location ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={sub.location} target="_blank">
+                        <MapPin className="mr-2 h-4 w-4" /> View Map
+                      </Link>
+                    </Button>
+                  ) : (
+                    'N/A'
+                  )}
                 </TableCell>
-                <TableCell>{new Date(sub.startDate).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
-                  {sub.endDate ? new Date(sub.endDate).toLocaleDateString() : 'Active'}
+                  {sub.createdAt
+                    ? new Date(sub.createdAt).toLocaleDateString()
+                    : 'N/A'}
                 </TableCell>
               </TableRow>
             ))}

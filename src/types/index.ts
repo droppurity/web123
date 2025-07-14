@@ -31,9 +31,13 @@ export interface Referral {
 
 export interface Subscription {
   _id: string;
-  userEmail: string;
-  plan: 'Monthly' | 'Yearly' | 'Basic';
-  status: 'Active' | 'Canceled' | 'Past Due';
-  startDate: Date;
-  endDate: Date | null;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  address: string;
+  purifierName: string;
+  planName: string;
+  tenure: string;
+  createdAt: Date;
 }
