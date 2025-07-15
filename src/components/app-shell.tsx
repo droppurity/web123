@@ -12,12 +12,15 @@ import {
   Menu,
   MessageSquare,
   RefreshCw,
+  Bell,
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { RefreshButton } from './refresh-button';
 import { useState, useRef, useTransition } from 'react';
 import { cn } from '@/lib/utils';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
+import { useToast } from '@/hooks/use-toast';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +30,59 @@ const navItems = [
   { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { href: '/interactions', label: 'Interactions', icon: MessageSquare },
 ];
+
+function PushNotificationButton() {
+  const { toast } = useToast();
+  const {
+    isSubscribed,
+    subscribe,
+    unsubscribe,
+    userSubscription,
+    isSubscriptionLoading,
+  } = usePushNotifications();
+
+  const handleSubscribe = async () => {
+    try {
+      await subscribe();
+      toast({ title: 'Success', description: 'You are now subscribed to new lead notifications.' });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Subscription Failed',
+        description: 'Could not subscribe to notifications. Please ensure you have granted permission.',
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  const handleUnsubscribe = async () => {
+    try {
+      await unsubscribe();
+      toast({ title: 'Success', description: 'You have unsubscribed from notifications.' });
+    } catch (error) {
+      console.error(error);
+       toast({
+        title: 'Unsubscription Failed',
+        description: 'Could not unsubscribe.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={isSubscribed ? handleUnsubscribe : handleSubscribe}
+      disabled={isSubscriptionLoading}
+      aria-label={isSubscribed ? "Unsubscribe from notifications" : "Subscribe to notifications"}
+    >
+      <Bell className={cn(isSubscribed && "fill-primary text-primary")} />
+    </Button>
+  );
+}
+
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -126,7 +182,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h1 className="text-lg font-semibold">DropPurity</h1>
           </Link>
         </div>
-        <RefreshButton />
+        <div className="flex items-center">
+            <PushNotificationButton />
+            <RefreshButton />
+        </div>
       </header>
       <div className="relative flex-1">
         <div 

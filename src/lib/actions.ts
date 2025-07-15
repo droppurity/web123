@@ -30,24 +30,36 @@ export async function addInteraction(
 
   try {
     const interactionsCollection = db.collection('interactions');
+    const leadCollectionName = await getCollectionName(leadType);
+    const lead = await db.collection(leadCollectionName).findOne({ _id: new ObjectId(leadId) });
+
+    if (!lead) {
+      return { message: 'Lead not found.' };
+    }
+
+
     await interactionsCollection.insertOne({
       leadId: new ObjectId(leadId),
       leadType,
+      leadName: lead.name,
       type: interactionType,
       notes,
       createdAt: new Date(),
     });
 
-    const leadCollectionName = await getCollectionName(leadType);
-    await db.collection(leadCollectionName).updateOne(
-      { _id: new ObjectId(leadId) },
-      { $set: { status: 'Contacted' as LeadStatus } }
-    );
+    if (lead.status !== 'Contacted') {
+        await db.collection(leadCollectionName).updateOne(
+          { _id: new ObjectId(leadId) },
+          { $set: { status: 'Contacted' as LeadStatus } }
+        );
+    }
+
 
     revalidatePath('/dashboard');
     revalidatePath('/subscriptions');
     revalidatePath('/free-trials');
     revalidatePath(`/leads/${leadType.replace(' ', '-')}-${leadId}`);
+    revalidatePath('/interactions');
     return { message: 'Interaction added successfully.' };
   } catch (e) {
     console.error(e);
@@ -85,6 +97,7 @@ export async function updateLeadStatus(
     revalidatePath('/subscriptions');
     revalidatePath('/free-trials');
     revalidatePath(`/leads/${leadType.replace(' ', '-')}-${leadId}`);
+    revalidatePath('/interactions');
     return { message: 'Status updated successfully.' };
   } catch (e) {
     console.error(e);
@@ -102,28 +115,57 @@ export async function logContactAttempt(leadId: string, leadType: 'Subscription'
 
   try {
     const interactionsCollection = db.collection('interactions');
+    const leadCollectionName = await getCollectionName(leadType);
+    const lead = await db.collection(leadCollectionName).findOne({ _id: new ObjectId(leadId) });
+
+    if (!lead) {
+      return { success: false, message: 'Lead not found.' };
+    }
+
     await interactionsCollection.insertOne({
       leadId: new ObjectId(leadId),
       leadType,
+      leadName: lead.name,
       type: contactMethod,
       notes: `${contactMethod} attempt.`,
       createdAt: new Date(),
     });
 
-    const leadCollectionName = await getCollectionName(leadType);
-     await db.collection(leadCollectionName).updateOne(
-      { _id: new ObjectId(leadId) },
-      { $set: { status: 'Contacted' as LeadStatus } }
-    );
+     if (lead.status !== 'Contacted') {
+        await db.collection(leadCollectionName).updateOne(
+            { _id: new ObjectId(leadId) },
+            { $set: { status: 'Contacted' as LeadStatus } }
+        );
+     }
     
     revalidatePath('/dashboard');
     revalidatePath('/subscriptions');
     revalidatePath('/free-trials');
     revalidatePath(`/leads/${leadType.replace(' ', '-')}-${leadId}`);
+    revalidatePath('/interactions');
 
     return { success: true, message: `${contactMethod} attempt logged successfully.` };
   } catch (e) {
     console.error(e);
     return { success: false, message: `Failed to log ${contactMethod} attempt.` };
   }
+}
+
+export async function savePushSubscription(subscription: PushSubscription) {
+    const db = await getDb();
+    const pushSubscriptions = db.collection('push_subscriptions');
+    
+    // Use the endpoint as a unique key to avoid duplicate subscriptions
+    await pushSubscriptions.updateOne(
+        { endpoint: subscription.endpoint },
+        { $set: subscription },
+        { upsert: true }
+    );
+}
+
+export async function deletePushSubscription(subscription: PushSubscription) {
+    const db = await getDb();
+    const pushSubscriptions = db.collection('push_subscriptions');
+    
+    await pushSubscriptions.deleteOne({ endpoint: subscription.endpoint });
 }

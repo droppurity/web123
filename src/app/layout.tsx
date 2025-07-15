@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 export const metadata: Metadata = {
   title: 'DropPurity Viewer',
   description: 'View data from your DropPurity MongoDB database.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
