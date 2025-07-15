@@ -36,6 +36,7 @@ async function getInteractionsForLeads<T extends Subscription | FreeTrial>(
       ...i,
       _id: i._id.toString(),
       leadId: i.leadId.toString(),
+      createdAt: new Date(i.createdAt),
     })) as Interaction[];
 
     const callCount = serializedInteractions.filter(i => i.type === 'Call').length;
@@ -61,7 +62,7 @@ export async function getContacts(): Promise<Contact[]> {
     .find({})
     .sort({createdAt: -1})
     .toArray();
-  return contacts.map(d => ({...d, _id: d._id.toString()})) as Contact[];
+  return contacts.map(d => ({...d, _id: d._id.toString(), createdAt: new Date(d.createdAt)})) as Contact[];
 }
 
 export async function getFreeTrials(): Promise<
@@ -79,7 +80,7 @@ export async function getFreeTrials(): Promise<
     .find({})
     .sort({createdAt: -1})
     .toArray();
-  const trialsWithIds = trials.map(d => ({...d, _id: d._id.toString()})) as FreeTrial[];
+  const trialsWithIds = trials.map(d => ({...d, _id: d._id.toString(), createdAt: new Date(d.createdAt)})) as FreeTrial[];
   return getInteractionsForLeads(trialsWithIds, 'Free Trial');
 }
 
@@ -91,7 +92,7 @@ export async function getReferrals(): Promise<Referral[]> {
     .find({})
     .sort({createdAt: -1})
     .toArray();
-  return referrals.map(d => ({...d, _id: d._id.toString()})) as Referral[];
+  return referrals.map(d => ({...d, _id: d._id.toString(), createdAt: new Date(d.createdAt)})) as Referral[];
 }
 
 export async function getSubscriptions(): Promise<
@@ -112,6 +113,7 @@ export async function getSubscriptions(): Promise<
   const subscriptionsWithIds = subscriptions.map(d => ({
     ...d,
     _id: d._id.toString(),
+    createdAt: new Date(d.createdAt),
   })) as Subscription[];
   return getInteractionsForLeads(subscriptionsWithIds, 'Subscription');
 }
@@ -119,7 +121,7 @@ export async function getSubscriptions(): Promise<
 export async function getLeadById(paramId: string): Promise<Lead | null> {
   noStore();
   const db = await getDb();
-
+  
   let leadType: 'Subscription' | 'Free Trial' | null = null;
   let id: string | undefined;
 
@@ -151,6 +153,7 @@ export async function getLeadById(paramId: string): Promise<Lead | null> {
   const leadDataWithStringId = {
     ...leadData,
     _id: leadData._id.toString(),
+    createdAt: new Date(leadData.createdAt),
   };
 
   const [leadWithDetails] = await getInteractionsForLeads(
@@ -195,6 +198,17 @@ export async function getAllInteractions(): Promise<Interaction[]> {
         $match: {
           lead: {$ne: null},
         }
+      },
+      {
+        $project: {
+          _id: 1,
+          leadId: 1,
+          leadType: 1,
+          type: 1,
+          notes: 1,
+          createdAt: 1,
+          'leadName': '$lead.name'
+        }
       }
     ])
     .toArray();
@@ -205,7 +219,7 @@ export async function getAllInteractions(): Promise<Interaction[]> {
     leadType: i.leadType,
     type: i.type,
     notes: i.notes,
-    createdAt: i.createdAt,
-    leadName: i.lead.name,
+    createdAt: new Date(i.createdAt),
+    leadName: i.leadName,
   })) as Interaction[];
 }

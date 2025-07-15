@@ -12,6 +12,17 @@ if (!MONGODB_URI) {
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
+async function createIndexes(db: Db) {
+  await Promise.all([
+    db.collection('contacts').createIndex({ createdAt: -1 }),
+    db.collection('free_trials').createIndex({ createdAt: -1 }),
+    db.collection('referrals').createIndex({ createdAt: -1 }),
+    db.collection('subscriptions').createIndex({ createdAt: -1 }),
+    db.collection('interactions').createIndex({ createdAt: -1 }),
+    db.collection('interactions').createIndex({ leadId: 1 }),
+  ]);
+}
+
 export async function getDb(): Promise<Db> {
   if (cachedDb) {
     return cachedDb;
@@ -19,6 +30,9 @@ export async function getDb(): Promise<Db> {
 
   const client = await connectToDatabase();
   const db = client.db(MONGODB_DB);
+  
+  // Create indexes
+  await createIndexes(db);
 
   cachedDb = db;
   return db;
