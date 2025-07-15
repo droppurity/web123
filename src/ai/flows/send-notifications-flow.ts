@@ -1,6 +1,7 @@
 
 'use server';
 
+import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { getDb } from '@/lib/mongodb';
 import { z } from 'zod';

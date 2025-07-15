@@ -27,33 +27,31 @@ export const usePushNotifications = () => {
   const [isSubscriptionLoading, setSubscriptionLoading] = useState(true);
 
   useEffect(() => {
-    const checkSubscription = async () => {
-      setSubscriptionLoading(true);
+    async function setupServiceWorker() {
       if ('serviceWorker' in navigator && 'PushManager' in window) {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription) {
-          setUserSubscription(subscription);
-          setIsSubscribed(true);
+        try {
+          // Register the service worker
+          const registration = await navigator.serviceWorker.register('/sw.js');
+          
+          // Wait for the service worker to be ready
+          await navigator.serviceWorker.ready;
+          
+          console.log('Service Worker registration successful with scope: ', registration.scope);
+
+          // Check for existing subscription
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) {
+            setUserSubscription(subscription);
+            setIsSubscribed(true);
+          }
+        } catch (err) {
+          console.error('Service Worker registration failed: ', err);
         }
       }
       setSubscriptionLoading(false);
-    };
-
-    checkSubscription();
-  }, []);
-  
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(
-            function (registration) {
-                console.log('Service Worker registration successful with scope: ', registration.scope);
-            },
-            function (err) {
-                console.log('Service Worker registration failed: ', err);
-            }
-        );
     }
+    
+    setupServiceWorker();
   }, []);
   
 
