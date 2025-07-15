@@ -20,7 +20,7 @@ import { Phone, MessageSquare, StickyNote } from 'lucide-react';
 import Link from 'next/link';
 import { BackButton } from '@/components/back-button';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 function InteractionIcon({ type }: { type: Interaction['type'] }) {
   switch (type) {

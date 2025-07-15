@@ -32,7 +32,7 @@ import {
 import { Subscription, FreeTrial, Lead, LeadStatus } from '@/types';
 import Link from 'next/link';
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 function getStatusVariant(status: LeadStatus) {
   switch (status) {

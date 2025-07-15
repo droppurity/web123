@@ -1,5 +1,4 @@
 import 'server-only';
-import { unstable_noStore as noStore } from 'next/cache';
 import type {
   Contact,
   FreeTrial,
@@ -16,8 +15,7 @@ async function getInteractionsForLeads<T extends Subscription | FreeTrial>(
   leadType: 'Subscription' | 'Free Trial'
 ): Promise<(T & {interactions: Interaction[]; callCount: number; whatsAppCount: number})[]> {
   if (leads.length === 0) return [];
-  noStore();
-
+  
   const db = await getDb();
   const leadIds = leads.map(l => new ObjectId(l._id));
 
@@ -55,7 +53,6 @@ async function getInteractionsForLeads<T extends Subscription | FreeTrial>(
 }
 
 export async function getContacts(): Promise<Contact[]> {
-  noStore();
   const db = await getDb();
   const contacts = await db
     .collection('contacts')
@@ -73,7 +70,6 @@ export async function getFreeTrials(): Promise<
     whatsAppCount: number;
   })[]
 > {
-  noStore();
   const db = await getDb();
   const trials = await db
     .collection('free_trials')
@@ -85,7 +81,6 @@ export async function getFreeTrials(): Promise<
 }
 
 export async function getReferrals(): Promise<Referral[]> {
-  noStore();
   const db = await getDb();
   const referrals = await db
     .collection('referrals')
@@ -103,7 +98,6 @@ export async function getSubscriptions(): Promise<
     whatsAppCount: number;
   })[]
 > {
-  noStore();
   const db = await getDb();
   const subscriptions = await db
     .collection('subscriptions')
@@ -119,7 +113,6 @@ export async function getSubscriptions(): Promise<
 }
 
 export async function getLeadById(paramId: string): Promise<Lead | null> {
-  noStore();
   const db = await getDb();
   
   let leadType: 'Subscription' | 'Free Trial' | null = null;
@@ -165,7 +158,6 @@ export async function getLeadById(paramId: string): Promise<Lead | null> {
 }
 
 export async function getAllInteractions(): Promise<Interaction[]> {
-  noStore();
   const db = await getDb();
   const interactions = await db
     .collection('interactions')
