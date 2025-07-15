@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { RefreshButton } from './refresh-button';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -83,6 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <h1 className="text-lg font-semibold">DropPurity</h1>
           </Link>
         </div>
+        <RefreshButton />
       </header>
       <main className="flex-1 overflow-y-auto">
         <div className="p-4 lg:p-6">{children}</div>
