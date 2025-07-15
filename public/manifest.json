@@ -2,11 +2,6 @@
 {
   "name": "DropPurity Viewer",
   "short_name": "DropPurity",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#663399",
-  "description": "View data from your DropPurity MongoDB database.",
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -18,5 +13,10 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "start_url": "/",
+  "display": "standalone",
+  "gcm_sender_id": "103953800507"
 }
