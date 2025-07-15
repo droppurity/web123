@@ -25,6 +25,8 @@ import type { Subscription, FreeTrial, LeadStatus } from '@/types';
 import { ContactButton } from './contact-button';
 import { BackButton } from '@/components/back-button';
 
+export const revalidate = 0;
+
 function getStatusVariant(status: LeadStatus) {
   switch (status) {
     case 'Converted':

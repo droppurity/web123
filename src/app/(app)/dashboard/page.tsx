@@ -32,6 +32,8 @@ import {
 import { Subscription, FreeTrial, Lead, LeadStatus } from '@/types';
 import Link from 'next/link';
 
+export const revalidate = 0;
+
 function getStatusVariant(status: LeadStatus) {
   switch (status) {
     case 'Converted':

@@ -23,6 +23,7 @@ import { LeadHistoryDialog } from '../subscriptions/lead-history-dialog';
 import { ContactButton } from '../leads/[id]/contact-button';
 import { BackButton } from '@/components/back-button';
 
+export const revalidate = 0;
 
 function getStatusVariant(status: LeadStatus) {
   switch (status) {

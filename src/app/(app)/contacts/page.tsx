@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import { Mail, MapPin } from 'lucide-react';
 import { BackButton } from '@/components/back-button';
 
+export const revalidate = 0;
+
 function ContactCard({ contact }: { contact: Contact }) {
   return (
     <Card>

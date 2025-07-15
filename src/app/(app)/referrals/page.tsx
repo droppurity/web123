@@ -18,6 +18,8 @@ import { Badge } from '@/components/ui/badge';
 import { Referral } from '@/types';
 import { BackButton } from '@/components/back-button';
 
+export const revalidate = 0;
+
 function getStatusVariant(status: Referral['status']) {
   switch (status) {
     case 'Completed':
